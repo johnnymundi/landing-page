@@ -1,26 +1,280 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   GAME BOY THEME SYSTEM
+   - Use class on <html>: "theme-gb" or "theme-gbc"
+   ========================================================= */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-ui: ui-sans-serif, system-ui;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ---------- Game Boy Classic (monocromático verde) ---------- */
+html.theme-gb {
+  --bg: #0f1b13;
+  --surface: #17251a;
+  --surface-2: #1f3322;
+
+  --ink: #d7f2a3;
+  --ink-soft: #a6c37a;
+  --ink-dim: rgba(215, 242, 163, 0.65);
+
+  --border: #d7f2a3;
+  --shadow: #070f09;
+  --accent: #d7f2a3; /* “brilho” */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ---------- Game Boy Color (pastel retro, ainda 8-bit) ---------- */
+html.theme-gbc {
+  --bg: #0c1020;
+  --surface: #141a2f;
+  --surface-2: #1b2441;
+
+  --ink: #e9f0ff;
+  --ink-soft: #c3d0ff;
+  --ink-dim: rgba(233, 240, 255, 0.7);
+
+  --border: #9fe7ff;
+  --shadow: #050712;
+  --accent: #b7ff9f;
+}
+
+/* ---------- Base ---------- */
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-pixel), var(--font-ui);
+  text-rendering: optimizeLegibility;
 }
+
+/* scanlines + grid */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.06) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 2px);
+  background-size: 22px 22px, 22px 22px, 100% 6px;
+  opacity: 0.18;
+}
+
+/* tipografia “pixel-friendly” */
+.pixel-text {
+  letter-spacing: 0.06em;
+  line-height: 1.8;
+}
+
+/* =========================================================
+   PIXEL SHAPES
+   ========================================================= */
+
+/* Cantos “degrau” (8-bit) */
+.pixel-clip-10 {
+  clip-path: polygon(
+    0 10px,
+    10px 10px,
+    10px 0,
+    calc(100% - 10px) 0,
+    calc(100% - 10px) 10px,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    10px calc(100% - 10px),
+    0 calc(100% - 10px)
+  );
+}
+
+.pixel-clip-8 {
+  clip-path: polygon(
+    0 8px,
+    8px 8px,
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 8px),
+    0 calc(100% - 8px)
+  );
+}
+
+/* Card padrão */
+.pixel-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  box-shadow: 6px 6px 0 var(--shadow);
+}
+
+.pixel-card.pixel-clip-10 {
+  /* só pra garantir que clip não “corte” sombra no Safari */
+  will-change: transform;
+}
+
+/* Botão padrão */
+.pixel-btn {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  box-shadow: 4px 4px 0 var(--shadow);
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  user-select: none;
+}
+
+.pixel-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 var(--shadow);
+  filter: brightness(1.05);
+}
+
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+
+/* Link sublinhado retro */
+.pixel-link {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: var(--ink);
+}
+
+.pixel-link:hover {
+  color: var(--accent);
+}
+
+/* Badge/Chip */
+.pixel-chip {
+  border: 2px solid var(--border);
+  background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+}
+
+/* Header HUD style */
+.pixel-hud {
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--border) 70%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* Texto muted */
+.text-muted {
+  color: var(--ink-dim);
+}
+
+/* :root {
+   Paleta tipo Game Boy (tela verde) 
+  --gb-bg: #0f1b13;
+  --gb-surface: #1b2b1d;
+  --gb-surface-2: #243a24;
+
+  --gb-ink: #cfe6a6;
+  --gb-ink-soft: #a9c47f;
+
+  --gb-border: #cfe6a6;
+  --gb-shadow: #0a120c;
+}
+
+html,
+body {
+  background: var(--gb-bg);
+  color: var(--gb-ink);
+  font-family: var(--font-pixel), ui-sans-serif, system-ui;
+}
+
+ “scanlines”/grade leve estilo tela 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+      rgba(207, 230, 166, 0.06) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(207, 230, 166, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.25;
+}
+
+ Utility: texto mais legível na fonte pixel 
+.pixel-text {
+  letter-spacing: 0.06em;
+  line-height: 1.7;
+}
+
+ Borda pixelada (estilo 8-bit) usando clip-path “degrau” 
+.pixel-frame {
+  background: var(--gb-surface);
+  box-shadow: 6px 6px 0 var(--gb-shadow);
+  border: 2px solid var(--gb-border);
+  clip-path: polygon(
+    0 10px,
+    10px 10px,
+    10px 0,
+    calc(100% - 10px) 0,
+    calc(100% - 10px) 10px,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    10px calc(100% - 10px),
+    0 calc(100% - 10px)
+  );
+}
+
+ Botão pixel 
+.pixel-btn {
+  background: var(--gb-surface-2);
+  border: 2px solid var(--gb-border);
+  box-shadow: 4px 4px 0 var(--gb-shadow);
+  padding: 10px 14px;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  clip-path: polygon(
+    0 8px,
+    8px 8px,
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 8px),
+    0 calc(100% - 8px)
+  );
+}
+
+.pixel-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 var(--gb-shadow);
+}
+
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--gb-shadow);
+}
+
+a {
+  color: var(--gb-ink);
+}
+a:hover {
+  color: var(--gb-ink-soft);
+}
+ */
