@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { projects } from "@/components/content/projects";
+import { projects } from "@/content/projects";
 
 export default function Portfolio() {
   return (
